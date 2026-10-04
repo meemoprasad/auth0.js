@@ -1,5 +1,4 @@
-
-name: Auth0.js Nonce Investigation
+name: Auth0.js Nonce Regression
 
 on:
   workflow_dispatch:
@@ -7,22 +6,24 @@ on:
     branches:
       - investigate/state-nonce-validation
 
+permissions:
+  contents: read
+
 jobs:
   tests:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout investigation branch
         uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run focused Auth0.js tests
+      - name: Run Auth0.js WebAuth tests
         run: npx cross-env BABEL_ENV=test npx mocha --require @babel/register --require jsdom-global/register test/web-auth/web-auth.test.js --exit
