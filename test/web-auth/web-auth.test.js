@@ -1056,6 +1056,41 @@ describe('auth0.WebAuth', function () {
           }
         );
       });
+      it('should reject an id_token when transaction is missing and nonce is omitted', function (done) {
+  var webAuth = new WebAuth({
+    domain: 'wptest.auth0.com',
+    redirectUri: 'http://example.com/callback',
+    clientID: 'gYSNlU4CYV1Ypdqg8zPQcup6rJw1Mbt',
+    responseType: 'token id_token',
+    __clock: () => new Date(1482933050000)
+  });
+
+  TransactionManager.prototype.getStoredTransaction.restore &&
+    TransactionManager.prototype.getStoredTransaction.restore();
+
+  sinon
+    .stub(TransactionManager.prototype, 'getStoredTransaction')
+    .callsFake(function () {
+      return null;
+    });
+
+  webAuth.parseHash(
+    {
+      state: '123',
+      hash: '#state=123&access_token=asldkfjahsd1kfjhasd&id_token=PASTE_VALID_TEST_ID_TOKEN_HERE'
+    },
+    function (err, data) {
+      TransactionManager.prototype.getStoredTransaction.restore();
+
+      // Replace this assertion with the expected security behavior:
+      // a missing expected nonce should not silently disable nonce validation.
+      expect(err).to.exist;
+      expect(data).to.not.exist;
+      done();
+    }
+  );
+});
+
 
       it('should bypass state checking when options.__enableIdPInitiatedLogin is set to true and there is no state in the hash and in the transaction', function (done) {
         var webAuth = new WebAuth({
