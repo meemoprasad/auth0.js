@@ -7,12 +7,10 @@ on:
     branches:
       - investigate/state-nonce-validation
 
-permissions:
-  contents: read
-
 jobs:
   tests:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,10 +18,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '20'
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run web-auth tests
-        run: npx mocha test/web-auth/web-auth.test.js
+      - name: Run focused Auth0.js tests
+        run: npx cross-env BABEL_ENV=test npx mocha --require @babel/register --require jsdom-global/register test/web-auth/web-auth.test.js --exit
